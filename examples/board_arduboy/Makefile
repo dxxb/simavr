@@ -27,6 +27,8 @@ IPATH += ${simavr}/simavr/sim
 VPATH = .
 VPATH += ../parts
 
+LDFLAGS += -lpthread
+
 include ../Makefile.opengl
 
 all: obj ${target}
