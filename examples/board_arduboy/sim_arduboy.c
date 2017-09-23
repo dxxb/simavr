@@ -143,6 +143,9 @@ static void avr_run_loop(void)
 	app_s.yield = false;
 	while (!app_s.yield) {
 		avr->run(avr);
+		int state = avr->state;
+		if (state == cpu_Done || state == cpu_Crashed)
+			break;
 
 #if USE_THREADS
 		ssize_t r_sz;
@@ -326,6 +329,8 @@ main (int argc, char *argv[])
 
 	int debug = 0;
 	int verbose = 0;
+	int gdb_port = 1234;
+
 
 	for (int i = 1; i < argc; i++) {
 		if (!strcmp(argv[i] + strlen(argv[i]) - 4, ".hex"))
@@ -405,6 +410,12 @@ main (int argc, char *argv[])
 	// Initialize GLUT system
 	glutInit (&argc, argv);
 	initGL (app_s.ssd1306.columns, app_s.ssd1306.rows, 2.0);
+
+	avr->gdb_port = gdb_port;
+	if (debug) {
+		avr->state = cpu_Stopped;
+		avr_gdb_init(avr);
+	}
 
 #if USE_THREADS
 	glutTimerFunc(1000/GL_FRAME_PERIOD_US, timerCB, 0);
